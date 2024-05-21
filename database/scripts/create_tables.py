@@ -1,12 +1,15 @@
 import psycopg2
 from psycopg2 import sql
+import os
+from dotenv import load_dotenv
 
-# Database connection parameters
-DB_NAME = "datawarehouse"
-DB_USER = "yourusername"
-DB_PASSWORD = "yourpassword"
-DB_HOST = "localhost"
-DB_PORT = "5432"
+load_dotenv()
+
+db_host = os.getenv('DB_HOST')
+db_user = os.getenv('DB_USER')
+db_password = os.getenv('DB_PASSWORD')
+db_name = os.getenv('DB_NAME')
+db_port = os.getenv('DB_PORT')
 
 # SQL statements for creating tables
 TABLES = {
@@ -74,11 +77,11 @@ def create_tables():
     try:
         # Connect to the PostgreSQL server
         conn = psycopg2.connect(
-            dbname=DB_NAME,
-            user=DB_USER,
-            password=DB_PASSWORD,
-            host=DB_HOST,
-            port=DB_PORT
+            dbname=db_name,
+            user=db_user,
+            password=db_password,
+            host=db_host,
+            port=db_port
         )
         cur = conn.cursor()
         
