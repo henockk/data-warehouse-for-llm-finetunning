@@ -4,7 +4,8 @@ class BlogSpider(scrapy.Spider):
     name = "blog_spider"
     allowed_domains = ["example.com"]  
     start_urls = [
-        # 'http://example.com/blog', 
+               "https://www.ezega.com",
+               "https://mereja.com/amharic/v2/"
     ]
 
     def parse(self, response):
