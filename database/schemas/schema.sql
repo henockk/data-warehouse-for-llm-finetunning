@@ -47,12 +47,3 @@ CREATE TABLE IF NOT EXISTS data_sources (
     source_url TEXT UNIQUE,
     last_scraped TIMESTAMP
 );
-
--- Table to store logs
-CREATE TABLE IF NOT EXISTS scrape_logs (
-    id SERIAL PRIMARY KEY,
-    source_name TEXT,
-    status TEXT,
-    message TEXT,
-    logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);

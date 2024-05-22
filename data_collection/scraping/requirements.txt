@@ -2,3 +2,5 @@ scrapy
 beautifulsoup4
 selenium
 telethon
+dotenv
+pathlib
