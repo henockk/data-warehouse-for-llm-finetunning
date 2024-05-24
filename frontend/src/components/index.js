@@ -3,7 +3,3 @@ export { default as SourceList } from './SourceList';
 export { default as RawTextDataList } from './RawTextDataList';
 export { default as CleanTextDataList } from './CleanTextDataList';
 export { default as AudioDataList } from './AudioDataList';
-export { default as SearchFilter } from './SearchFilter';
-export { default as Hero  } from './components/Hero';
-export { default as About } from './components/About';
-export { default as Features } from './components/Features';
