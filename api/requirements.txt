@@ -2,3 +2,4 @@ sqlalchemy
 dotenv
 flask
 psycopg2
+flask-cors

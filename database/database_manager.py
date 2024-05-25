@@ -24,7 +24,7 @@ class DatabaseManager:
         )
         self.connection.autocommit = True
 
-    def insert_language(self, language_name):
+    async def insert_language(self, language_name):
         with self.connection.cursor() as cursor:
             try:
                 cursor.execute(
@@ -39,7 +39,7 @@ class DatabaseManager:
                 )
                 return cursor.fetchone()[0]  
 
-    def insert_source(self, source_name, source_type, language_id):
+    async def insert_source(self, source_name, source_type, language_id):
         with self.connection.cursor() as cursor:
             cursor.execute(
                 "INSERT INTO sources (source_name, source_type, language_id) VALUES (%s, %s, %s) RETURNING id;",
@@ -55,7 +55,7 @@ class DatabaseManager:
             )
             return cursor.fetchone()[0]
 
-    def insert_cleaned_text_data(self, raw_id, content):
+    async def insert_cleaned_text_data(self, raw_id, content):
         with self.connection.cursor() as cursor:
             cursor.execute(
                 "INSERT INTO cleaned_text_data (raw_id, content) VALUES (%s, %s) RETURNING id;",
@@ -63,7 +63,7 @@ class DatabaseManager:
             )
             return cursor.fetchone()[0]
 
-    def insert_audio_data(self, audio_path, transcript, source_id, date_collected):
+    async def insert_audio_data(self, audio_path, transcript, source_id, date_collected):
         with self.connection.cursor() as cursor:
             cursor.execute(
                 "INSERT INTO audio_data (audio_path, transcript, source_id, date_collected) VALUES (%s, %s, %s, %s) RETURNING id;",
@@ -71,14 +71,14 @@ class DatabaseManager:
             )
             return cursor.fetchone()[0]
 
-    def insert_data_source(self, source_name, source_url, last_scraped):
+    async def insert_data_source(self, source_name, source_url, last_scraped):
         with self.connection.cursor() as cursor:
             try:
-                cursor.execute(
+                await cursor.execute(
                     "INSERT INTO data_sources (source_name, source_url, last_scraped) VALUES (%s, %s, %s) RETURNING id;",
                     (source_name, source_url, last_scraped)
                 )
-                return cursor.fetchone()[0]
+                return await cursor.fetchone()[0]
             except psycopg2.errors.UniqueViolation:
                 # If the data source already exists, update its last_scraped value
                 cursor.execute(
@@ -87,6 +87,11 @@ class DatabaseManager:
                 )
             self.connection.commit()  # Commit the transaction
 
+    async def get_raw_text_data(self):
+        with self.connection.cursor() as cursor:
+            cursor.execute("SELECT * FROM raw_text_data;")
+            return cursor.fetchall()
+    
     def close(self):
         self.connection.close()
 

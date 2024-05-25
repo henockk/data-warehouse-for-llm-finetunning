@@ -3,9 +3,7 @@ automation/airflow/logs/
 bin/
 lib64
 pyvenv.cfg
-tikvahethiopia.session
-tikvahethiopia.session-journal
-
+*.session
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

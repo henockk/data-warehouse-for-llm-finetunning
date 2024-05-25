@@ -1,53 +1,42 @@
 import scrapy
-import psycopg2
-from psycopg2.extras import RealDictCursor
-import os
-from dotenv import load_dotenv
+from datetime import datetime
+from database.database_manager import DatabaseManager
 
-# Load environment variables from .env file, if present
-load_dotenv()
+class NewsSpider(scrapy.Spider):
+    name = "news_spider"
+    start_urls = [
+      
+        # Add more URLs as needed
+    ]
 
-class AmharicNewsSpider(scrapy.Spider):
-    name = "amharic_news"
-    start_urls = ['https://www.bbc.com/amharic/articles/cg33ge4l23vo']
+    def __init__(self, *args, **kwargs):
+        super(NewsSpider, self).__init__(*args, **kwargs)
+        self.db_manager = DatabaseManager()
 
-    def __init__(self):
-        super().__init__()
-        # Establish a connection to the PostgreSQL database using environment variables
-        self.conn = psycopg2.connect(
-            dbname=os.getenv('DB_NAME'),
-            user=os.getenv('DB_USER'),
-            password=os.getenv('DB_PASSWORD'),
-            host=os.getenv('DB_HOST'),  # Or the IP address of your PostgreSQL container
-            port=os.getenv('DB_PORT')
-        )
-        self.cur = self.conn.cursor(cursor_factory=RealDictCursor)
+    async def parse(self, response):
+        # Extract data from the webpage using XPath or CSS selectors
+        news_items = response.xpath('//div[@class="news-item"]')
 
-    def close(self, reason):
-        # Close the cursor and connection when the spider is closed
-        self.cur.close()
-        self.conn.close()
+        for news_item in news_items:
+            # Extract relevant data from the news item
+            title = news_item.xpath('./h2/a/text()').get()
+            link = news_item.xpath('./h2/a/@href').get()
+            date_published = news_item.xpath('./span[@class="date"]/text()').get()
 
-    def parse(self, response):
-        # Use Scrapy selector to find all paragraph elements
-        paragraphs = response.css('p::text').getall()
-        title = response.css('title::text').getall()[0]  # Get the first title element
-        header = response.css('h1::text').getall()[0]  # Get the first h1 element
+            # You may need to further process the extracted data (e.g., date formatting)
+            date_published = datetime.strptime(date_published, "%Y-%m-%d")
 
-        # Prepare the data to be inserted
-        data_to_insert = {
-            'title': title,
-            'header': header,
-            'p_tags': ', '.join(paragraphs)
-        }
+            # Insert data source and retrieve source_id
+            source_name = "Example News"  # Adjust as needed
+            source_url = response.url
+            source_id = await self.insert_data_source(source_name, source_url, date_published)
 
-        # Insert the data into the database
-        self.cur.execute("""
-            INSERT INTO html_content (title, header, p_tags)
-            VALUES (%(title)s, %(header)s, %(p_tags)s)
-        """, data_to_insert)
+            # Insert raw text data
+            raw_text_id = self.db_manager.insert_raw_text_data(content=title, source_id=source_id, date_collected=date_published)
 
-        # Commit the transaction
-        self.conn.commit()
+        # Close the database connection when finished parsing
+        self.db_manager.close()
 
-        self.log(f'Scraped item: {data_to_insert}')  # Log the item to the console
+    async def insert_data_source(self, source_name, source_url, last_scraped):
+        source_id = self.db_manager.insert_data_source(source_name=source_name, source_url=source_url, last_scraped=last_scraped)
+        return source_id
