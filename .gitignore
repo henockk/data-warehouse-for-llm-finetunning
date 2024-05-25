@@ -1,3 +1,10 @@
+# Runtime files
+automation/airflow/logs/
+bin/
+lib64
+pyvenv.cfg
+*.session
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
