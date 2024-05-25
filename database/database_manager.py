@@ -47,7 +47,7 @@ class DatabaseManager:
             )
             return cursor.fetchone()[0]
 
-    def insert_raw_text_data(self, content, source_id, date_collected):
+    async def insert_raw_text_data(self, content, source_id, date_collected):
         with self.connection.cursor() as cursor:
             cursor.execute(
                 "INSERT INTO raw_text_data (content, source_id, date_collected) VALUES (%s, %s, %s) RETURNING id;",
@@ -78,7 +78,7 @@ class DatabaseManager:
                     "INSERT INTO data_sources (source_name, source_url, last_scraped) VALUES (%s, %s, %s) RETURNING id;",
                     (source_name, source_url, last_scraped)
                 )
-                return await cursor.fetchone()[0]
+                return cursor.fetchone()[0]
             except psycopg2.errors.UniqueViolation:
                 # If the data source already exists, update its last_scraped value
                 cursor.execute(
@@ -86,6 +86,18 @@ class DatabaseManager:
                     (last_scraped, source_name)
                 )
             self.connection.commit()  # Commit the transaction
+
+    async def insert_news_data(self, title, url, publication_date, content):
+        with self.connection.cursor() as cursor:
+            try:
+                cursor.execute(
+                    "INSERT INTO news_raw_data (title, url, publication_date, content) VALUES (%s, %s, %s, %s) RETURNING id;",
+                    (title, url, publication_date, content)
+                )
+                return cursor.fetchone()[0]
+            except psycopg2.Error as e:
+                print("Error inserting news data:", e)
+                return None
 
     async def get_raw_text_data(self):
         with self.connection.cursor() as cursor:
