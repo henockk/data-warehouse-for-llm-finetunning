@@ -19,14 +19,6 @@ TABLES = {
             language_name TEXT UNIQUE NOT NULL
         );
     """,
-    "sources": """
-        CREATE TABLE IF NOT EXISTS sources (
-            id SERIAL PRIMARY KEY,
-            source_name TEXT NOT NULL,
-            source_type TEXT NOT NULL,
-            language_id INTEGER REFERENCES languages(id)
-        );
-    """,
     "raw_text_data": """
         CREATE TABLE IF NOT EXISTS raw_text_data (
             id SERIAL PRIMARY KEY,
@@ -62,15 +54,15 @@ TABLES = {
             last_scraped TIMESTAMP
         );
     """,
-    "scrape_logs": """
-        CREATE TABLE IF NOT EXISTS scrape_logs (
+    "news_raw_data": """
+        CREATE TABLE IF NOT EXISTS news_raw_data (
             id SERIAL PRIMARY KEY,
-            source_name TEXT,
-            status TEXT,
-            message TEXT,
-            logged_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            title TEXT,
+            url TEXT,
+            content TEXT,
+            publication_date TIMESTAMP
         );
-    """
+    """,
 }
 
 def create_tables():

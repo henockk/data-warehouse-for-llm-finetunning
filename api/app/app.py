@@ -59,7 +59,7 @@ def get_sources():
         query = query.order_by(desc(getattr(DataSource, sort, 'id')))
 
     sources = query.all()
-    return jsonify([{'id': src.id, 'source_name': src.source_name, 'source_url': src.source_url} for src in sources])
+    return jsonify([{'id': src.id, 'source_name': src.source_name, 'source_url': src.source_url, 'last_scraped': src.last_scraped} for src in sources])
 
 @app.route('/raw_text_data', methods=['GET'])
 def get_raw_text_data():
@@ -77,7 +77,7 @@ def get_raw_text_data():
         query = query.order_by(desc(getattr(RawTextData, sort, 'id')))
 
     raw_text_data = query.all()
-    return jsonify([{'content': data.content, 'date_collected': data.date_collected} for data in raw_text_data])
+    return jsonify([{'id': data.id,'content': data.content, 'date_collected': data.date_collected} for data in raw_text_data])
 
 @app.route('/cleaned_text_data', methods=['GET'])
 def get_cleaned_text_data():
@@ -95,7 +95,7 @@ def get_cleaned_text_data():
         query = query.order_by(desc(getattr(CleanedTextData, sort, 'id')))
 
     cleaned_text_data = query.all()
-    return jsonify([{'content': data.content, 'cleaned_at': data.cleaned_at} for data in cleaned_text_data])
+    return jsonify([{'id': data.id, 'content': data.content, 'cleaned_at': data.cleaned_at} for data in cleaned_text_data])
 
 @app.route('/audio_data', methods=['GET'])
 def get_audio_data():
@@ -113,7 +113,7 @@ def get_audio_data():
         query = query.order_by(desc(getattr(AudioData, sort, 'id')))
 
     audio_data = query.all()
-    return jsonify([{'audio_path': data.audio_path, 'transcript': data.transcript, 'date_collected': data.date_collected} for data in audio_data])
+    return jsonify([{'id': data.id,'audio_path': data.audio_path, 'transcript': data.transcript, 'date_collected': data.date_collected} for data in audio_data])
 
 @app.route('/data_sources', methods=['GET'])
 def get_data_sources():
@@ -131,7 +131,7 @@ def get_data_sources():
         query = query.order_by(desc(getattr(DataSource, sort, 'id')))
 
     data_sources = query.all()
-    return jsonify([{'source_name': data.source_name, 'source_url': data.source_url, 'last_scraped': data.last_scraped} for data in data_sources])
+    return jsonify([{'id': data.id,'source_name': data.source_name, 'source_url': data.source_url, 'last_scraped': data.last_scraped} for data in data_sources])
 
 if __name__ == '__main__':
     app.run(debug=True)

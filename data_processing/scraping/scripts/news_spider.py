@@ -5,8 +5,14 @@ from database.database_manager import DatabaseManager
 class NewsSpider(scrapy.Spider):
     name = "news_spider"
     start_urls = [
-      
-        # Add more URLs as needed
+        'https://addisfortune.net',
+        'https://www.capitalethiopia.com',
+        'https://www.waltainfo.com',
+        'https://www.satenaw.com',
+        'https://ethiopianmonitor.com',
+        'https://www.ethiopianreporter.com',
+        'https://ethsat.com',
+        'https://www.aigaforum.com'
     ]
 
     def __init__(self, *args, **kwargs):
@@ -27,7 +33,7 @@ class NewsSpider(scrapy.Spider):
             date_published = datetime.strptime(date_published, "%Y-%m-%d")
 
             # Insert data source and retrieve source_id
-            source_name = "Example News"  # Adjust as needed
+            source_name = link
             source_url = response.url
             source_id = await self.insert_data_source(source_name, source_url, date_published)
 
