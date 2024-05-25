@@ -10,7 +10,7 @@ db_host = os.getenv('DB_HOST')
 db_user = os.getenv('DB_USER')
 db_password = os.getenv('DB_PASSWORD')
 db_name = os.getenv('DB_NAME')
-db_host = os.getenv('DB_PORT')
+db_port = os.getenv('DB_PORT')
 
 
 class DatabaseManager:
@@ -20,17 +20,24 @@ class DatabaseManager:
             user=db_user,
             password=db_password,
             host=db_host,
-            port=db_host
+            port=db_port
         )
         self.connection.autocommit = True
 
     def insert_language(self, language_name):
         with self.connection.cursor() as cursor:
-            cursor.execute(
-                "INSERT INTO languages (language_name) VALUES (%s) RETURNING id;",
-                (language_name,)
-            )
-            return cursor.fetchone()[0]
+            try:
+                cursor.execute(
+                    "INSERT INTO languages (language_name) VALUES (%s) RETURNING id;",
+                    (language_name,)
+                )
+                return cursor.fetchone()[0]
+            except psycopg2.errors.UniqueViolation:
+                cursor.execute(
+                    "UPDATE languages SET language_name = %s WHERE language_name = %s RETURNING id;",
+                    (language_name, language_name)
+                )
+                return cursor.fetchone()[0]  
 
     def insert_source(self, source_name, source_type, language_id):
         with self.connection.cursor() as cursor:
@@ -66,11 +73,19 @@ class DatabaseManager:
 
     def insert_data_source(self, source_name, source_url, last_scraped):
         with self.connection.cursor() as cursor:
-            cursor.execute(
-                "INSERT INTO data_sources (source_name, source_url, last_scraped) VALUES (%s, %s, %s) RETURNING id;",
-                (source_name, source_url, last_scraped)
-            )
-            return cursor.fetchone()[0]
+            try:
+                cursor.execute(
+                    "INSERT INTO data_sources (source_name, source_url, last_scraped) VALUES (%s, %s, %s) RETURNING id;",
+                    (source_name, source_url, last_scraped)
+                )
+                return cursor.fetchone()[0]
+            except psycopg2.errors.UniqueViolation:
+                # If the data source already exists, update its last_scraped value
+                cursor.execute(
+                    "UPDATE data_sources SET last_scraped = %s WHERE source_name = %s;",
+                    (last_scraped, source_name)
+                )
+            self.connection.commit()  # Commit the transaction
 
     def close(self):
         self.connection.close()
