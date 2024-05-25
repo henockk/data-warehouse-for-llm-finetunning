@@ -1,3 +1,12 @@
+# Runtime files
+automation/airflow/logs/
+bin/
+lib64
+pyvenv.cfg
+tikvahethiopia.session
+tikvahethiopia.session-journal
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

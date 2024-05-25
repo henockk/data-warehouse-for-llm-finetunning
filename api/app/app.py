@@ -12,12 +12,13 @@ db_host = os.getenv('DB_HOST')
 db_user = os.getenv('DB_USER')
 db_password = os.getenv('DB_PASSWORD')
 db_name = os.getenv('DB_NAME')
-db_host = os.getenv('DB_PORT')
+db_port = os.getenv('DB_PORT')
 
 app = Flask(__name__)
 
 
-DATABASE_URL = 'postgresql://{db_user}:{db_password}@{db_host}/{db_name}'
+DATABASE_URL = f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
+
 engine = create_engine(DATABASE_URL)
 Base.metadata.create_all(engine)
 Session = sessionmaker(bind=engine)
