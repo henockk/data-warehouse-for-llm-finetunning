@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from models.data_models import Base, Language, Source, RawTextData, CleanedTextData, AudioData, DataSource
 from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
+from flask_cors import CORS
 
 import os
 from dotenv import load_dotenv
@@ -15,7 +16,7 @@ db_name = os.getenv('DB_NAME')
 db_port = os.getenv('DB_PORT')
 
 app = Flask(__name__)
-
+CORS(app)
 
 DATABASE_URL = f'postgresql://{db_user}:{db_password}@{db_host}:{db_port}/{db_name}'
 
@@ -44,21 +45,21 @@ def get_languages():
 
 @app.route('/sources', methods=['GET'])
 def get_sources():
-    query = session.query(Source)
+    query = session.query(DataSource)
     search = request.args.get('search')
     sort = request.args.get('sort', 'id')
     order = request.args.get('order', 'asc')
 
     if search:
-        query = query.filter(Source.source_name.ilike(f'%{search}%'))
+        query = query.filter(DataSource.source_name.ilike(f'%{search}%'))
 
     if order == 'asc':
-        query = query.order_by(asc(getattr(Source, sort, 'id')))
+        query = query.order_by(asc(getattr(DataSource, sort, 'id')))
     else:
-        query = query.order_by(desc(getattr(Source, sort, 'id')))
+        query = query.order_by(desc(getattr(DataSource, sort, 'id')))
 
     sources = query.all()
-    return jsonify([{'source_name': src.source_name, 'source_type': src.source_type} for src in sources])
+    return jsonify([{'id': src.id, 'source_name': src.source_name, 'source_url': src.source_url} for src in sources])
 
 @app.route('/raw_text_data', methods=['GET'])
 def get_raw_text_data():
